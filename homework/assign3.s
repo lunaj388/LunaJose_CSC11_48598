@@ -37,8 +37,8 @@
  loop:
      ADD R0, R0, R6         @ R0=R0+R6
      SUB R1, R1, R7         @ R1=R1-R7 
-     CMP R1, R7             @Compare R1 to R7
-     BGE loop               @ If R1 is greater than or Equal to R7 go back to loop
+     CMP R1, R7             @ Compare R1 to R7
+     BGE loop               @ If R1 is <= to R7 go back to loop
      BAL comploop
  
  comploop:
