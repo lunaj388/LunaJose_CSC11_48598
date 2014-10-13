@@ -59,8 +59,6 @@
  	LDR R2, address_of_numerator_read			 /* R2 <- numerator */
  	BL scanf				                       	 /* call to scanf */
  	
- 	@ Denominator Input
- 	
  	LDR R0, address_of_message2			       /* R0 <- message2 */
  	BL printf					                       
  	
@@ -77,21 +75,21 @@
   
  
   
-  MOV R4, R0                            /* r4 <- r0 */
-  MOV R5, R1                            /* r5 <- r1 */
-  LDR R2, address_of_numerator_read     /* r2 <- numerator */
-  LDR R3, address_of_denominator_read   /* r3 <- denominator */
-  LDR R2, [R2]                          /* r2 <- *r2 */
-  LDR R3, [R3]                          /* r3 <- *r3 */
-  LDR R0, address_of_message3           /* r0 <- message3 */
-  LDR R1, address_of_message4           /* r1 <- message4 */
+  MOV R4, R0                            /* R4 <- R0 */
+  MOV R5, R1                            /* R5 <- R1 */
+  LDR R2, address_of_numerator_read     /* R2 <- numerator */
+  LDR R3, address_of_denominator_read   /* R3 <- denominator */
+  LDR R2, [R2]                          /* R2 <- *R2 */
+  LDR R3, [R3]                          /* R3 <- *R3 */
+  LDR R0, address_of_message3           /* R0 <- message3 */
+  LDR R1, address_of_message4           /* R1 <- message4 */
   BL printf
  
  
  
- LDR LR, address_of_return              /* lr <- address_of_return */
- LDR LR, [LR]                           /* lr <- *lr */
- BX LR                                  /* return from main using lr */
+ LDR LR, address_of_return              /* LR <- address_of_return */
+ LDR LR, [LR]                           /* LR <- LR */
+ BX LR                                  /* return from main using LR */
  
  
  address_of_message1: .word message1
