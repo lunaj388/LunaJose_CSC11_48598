@@ -1,13 +1,13 @@
 .data
  
-message: .asciz "The game is 21, the person with the highest card value wins\n\n"
+message: .asciz "The game is 21\n"
 message1: .asciz "Your first card is a %d\n"
 message2: .asciz "Your second card is a %d\n"
 message3: .asciz "Your total is %d\n"
 message4: .asciz "Would you like to hit or stay, enter 1 to hit or anything else to exit\n"
 message5: .asciz "Your third card is %d\n"
 message6: .asciz "Your total is %d\n\n"
-message7: .asciz "The dealers first card ia a %d\n"
+message7: .asciz "The dealers first card is a %d\n"
 message8: .asciz "The dealers second card is a %d\n"
 message9: .asciz "The dealers total is %d\n\n"
 message10: .asciz "You win\n"
@@ -111,28 +111,28 @@ card2:	 							@ Create a random number
 	bl printf	@ Call printf
 	.global total
 total:
-		add r6, r6, r5
+		add r6, r6, r5				@Add R6 and R5
 		mov r1, r6
-		ldr r0, address_of_message3
+		ldr r0, address_of_message3 @Display total
 		bl printf
-		cmp r6, #21
-		beq Win
-		bl ncard
+		cmp r6, #21					@Check to see if the user total is 21
+		beq Win						@If so the user wins
+		bl ncard					@If not prompt the user to choose whether or not hit or stay
 		.global ncard
 ncard:
 	str lr, [sp,#4]
 	sub sp, sp, #4
-	ldr r0, address_of_message4
+	ldr r0, address_of_message4		@Prompt the user to hit or stay
 	bl printf
-	ldr r0, address_of_format
+	ldr r0, address_of_format		@Store the input from the user
 	mov r1, sp
 	bl scanf
 	
 	add r1, sp, #4
 	ldr r1, [sp]
-	cmp r1, #1
+	cmp r1, #1						@If the user inputs 1 brach to card3
 	beq card3
-	bl endgame
+	bl Dealers_card1
 	.global card3
 	
 card3:
@@ -143,15 +143,20 @@ card3:
 	bl division						@ Call division function to get remainder
 	add r1,#1 						@ Remainder in r1 so add 1 giving between 1 and 11
 	mov r7, r1
-	ldr r0, address_of_message5		@ Set message2 as the first parameter of printf
+	ldr r0, address_of_message5		@ Set message5 as the first parameter of printf
 	bl printf 						@ Call printf
 	bl ntotal
 
 ntotal:
-	add r7, r7, r6
-	mov r1, r7
-	ldr r0, address_of_message6
+	add r7, r7, r6					@Add r7 and r6
+	mov r1, r7						
+	ldr r0, address_of_message6		@Output the user total
 	bl printf
+	cmp r7, #21
+	beq Win
+	cmp r7, #21
+	bgt Lose
+	bl Dealers_card1
 	
 Dealers_card1:
 	bl rand 						@ Call rand
@@ -161,7 +166,7 @@ Dealers_card1:
 	bl division						@ Call division function to get remainder
 	add r1,#1 						@ Remainder in r1 so add 1 giving between 1 and 11
 	mov r8, r1
-	ldr r0, address_of_message7	@ Set message9 as the first parameter of printf
+	ldr r0, address_of_message7	    @ Set message7 as the first parameter of printf
 	bl printf 						@ Call printf	
 	bl Dealers_card2
 	.global Dealers_card2
@@ -174,36 +179,34 @@ Dealers_card2:
 	bl division						@ Call division function to get remainder
 	add r1,#1 						@ Remainder in r1 so add 1 giving between 1 and 11
 	mov r9, r1
-	ldr r0, address_of_message8		@ Set message10 as the first parameter of printf
+	ldr r0, address_of_message8		@ Set message8 as the first parameter of printf
 	bl printf 			
 	bl Dealers_Total
 	.global Dealers_Total
 
 Dealers_Total:
-		add r8, r8, r9
+		add r8, r8, r9				@Add r8 and r9
 		mov r1, r8
-		ldr r0, address_of_message9
-		bl printf
-		cmp r8, #21
-		beq Win
-		bl check
+		ldr r0, address_of_message9	@Output the users total
+		bl printf					
+		bl check					@Check to see who wins
 	
 
 check:
-	cmp r8, r7
-	bgt Win
-	blt Lose
+	cmp r7, r8						@Compare the results
+	bgt Win							@Declare who wins
+	blt Lose						@Declare who losses
 	
 
 Win:
-	ldr r0, address_of_message10
+	ldr r0, address_of_message10	@Output the results
 	bl printf
-	bal endgame
+	bal endgame						@End the game
 
 Lose:
-	ldr r0, address_of_message11
+	ldr r0, address_of_message11	@Output the results
 	bl printf
-	bal endgame
+	bal endgame						@End the game
 	
 	
 
