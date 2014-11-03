@@ -184,6 +184,8 @@ Dealers_Total:
 		mov r1, r8
 		ldr r0, address_of_message9
 		bl printf
+		cmp r8, #21
+		beq Win
 		bl check
 	
 
