@@ -6,8 +6,12 @@ message2: .asciz "Your second card is a %d\n"
 message3: .asciz "Your total is %d\n"
 message4: .asciz "Would you like to hit or stay, enter 1 to hit or anything else to exit\n"
 message5: .asciz "Your third card is %d\n"
-message6: .asciz "Your total is %d\n"
-message7: .asciz "You win"
+message6: .asciz "Your total is %d\n\n"
+message7: .asciz "The dealers first card ia a %d\n"
+message8: .asciz "The dealers second card is a %d\n"
+message9: .asciz "The dealers total is %d\n\n"
+message10: .asciz "You win\n"
+message11: .asciz "You lose\n"
 format: .asciz "%d"
 scan_pattern: .word 0
 number_read: .word 0
@@ -111,6 +115,8 @@ total:
 		mov r1, r6
 		ldr r0, address_of_message3
 		bl printf
+		cmp r6, #21
+		beq Win
 		bl ncard
 		.global ncard
 ncard:
@@ -124,7 +130,9 @@ ncard:
 	
 	add r1, sp, #4
 	ldr r1, [sp]
-	bl card3
+	cmp r1, #1
+	beq card3
+	bl endgame
 	.global card3
 	
 card3:
@@ -144,10 +152,54 @@ ntotal:
 	mov r1, r7
 	ldr r0, address_of_message6
 	bl printf
-	bl endgame
 	
-checkwin:
-	ldr r0, address_of_message
+Dealers_card1:
+	bl rand 						@ Call rand
+	mov r1,r0,asr #1 				@ In case random return is negative
+	mov r2,#11 						@ Move 11 to r2
+									@ We want rand()%11+1 so cal division function with rand()%11
+	bl division						@ Call division function to get remainder
+	add r1,#1 						@ Remainder in r1 so add 1 giving between 1 and 11
+	mov r8, r1
+	ldr r0, address_of_message7	@ Set message9 as the first parameter of printf
+	bl printf 						@ Call printf	
+	bl Dealers_card2
+	.global Dealers_card2
+
+Dealers_card2:
+	bl rand 						@ Call rand
+	mov r1,r0,asr #1 				@ In case random return is negative
+	mov r2,#11 						@ Move 11 to r2
+									@ We want rand()%11+1 so cal division function with rand()%11
+	bl division						@ Call division function to get remainder
+	add r1,#1 						@ Remainder in r1 so add 1 giving between 1 and 11
+	mov r9, r1
+	ldr r0, address_of_message8		@ Set message10 as the first parameter of printf
+	bl printf 			
+	bl Dealers_Total
+	.global Dealers_Total
+
+Dealers_Total:
+		add r8, r8, r9
+		mov r1, r8
+		ldr r0, address_of_message9
+		bl printf
+		bl check
+	
+
+check:
+	cmp r8, r7
+	bgt Win
+	blt Lose
+	
+
+Win:
+	ldr r0, address_of_message10
+	bl printf
+	bal endgame
+
+Lose:
+	ldr r0, address_of_message11
 	bl printf
 	bal endgame
 	
@@ -164,6 +216,11 @@ endgame:
  address_of_message4: .word message4
  address_of_message5: .word message5
  address_of_message6: .word message6
+ address_of_message7: .word message7
+ address_of_message8: .word message8
+ address_of_message9: .word message9
+ address_of_message10: .word message10
+ address_of_message11: .word message11
  address_of_format: .word format
 									
  .global printf
