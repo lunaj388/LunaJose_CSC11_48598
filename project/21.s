@@ -1,16 +1,16 @@
 .data
  
+message: .asciz "The game is 21, the person with the highest card value wins\n\n"
 message1: .asciz "Your first card is a %d\n"
 message2: .asciz "Your second card is a %d\n"
 message3: .asciz "Your total is %d\n"
-message4: .asciz "Would you like a new card enter 1 for a new card anything else to exit\n\n"
-message5: .asciz "Dealers first card is a %d\n"
-message6: .asciz "Dealers second card is a %d\n"
-message7: .asciz "Dealers second card is a %d\n"
-
-
+message4: .asciz "Would you like to hit or stay, enter 1 to hit or anything else to exit\n"
+message5: .asciz "Your third card is %d\n"
+message6: .asciz "Your total is %d\n"
+message7: .asciz "You win"
 format: .asciz "%d"
-
+scan_pattern: .word 0
+number_read: .word 0
  
  .text
  
@@ -75,6 +75,11 @@ main:
 	bl srand 						@ Call srand
 	
 	mov r4,#0 						@ Setup loop counter
+	
+	ldr r0, address_of_message
+	bl printf
+	bl card1
+	
 
 	.global card1
 card1:	 							@ Create a random number
@@ -99,20 +104,30 @@ card2:	 							@ Create a random number
 	add r1,#1 						@ Remainder in r1 so add 1 giving between 1 and 11
 	mov r6, r1
 	ldr r0, address_of_message2		@ Set message2 as the first parameter of printf
-	bl printf 						@ Call printf
+	bl printf	@ Call printf
 	.global total
 total:
 		add r6, r6, r5
 		mov r1, r6
 		ldr r0, address_of_message3
 		bl printf
-		bl card3
-		.global card3
-card3:
+		bl ncard
+		.global ncard
+ncard:
+	str lr, [sp,#4]
+	sub sp, sp, #4
 	ldr r0, address_of_message4
-	bl printf 
+	bl printf
+	ldr r0, address_of_format
+	mov r1, sp
+	bl scanf
 	
-Dealers_card1:
+	add r1, sp, #4
+	ldr r1, [sp]
+	bl card3
+	.global card3
+	
+card3:
 	bl rand 						@ Call rand
 	mov r1,r0,asr #1 				@ In case random return is negative
 	mov r2,#11 						@ Move 11 to r2
@@ -120,50 +135,39 @@ Dealers_card1:
 	bl division						@ Call division function to get remainder
 	add r1,#1 						@ Remainder in r1 so add 1 giving between 1 and 11
 	mov r7, r1
-	ldr r0, address_of_message5		@ Set message1 as the first parameter of printf
-	bl printf 						@ Call printf	
-	bl Dealers_card2
-	.global Dealers_card2
+	ldr r0, address_of_message5		@ Set message2 as the first parameter of printf
+	bl printf 						@ Call printf
+	bl ntotal
 
-Dealers_card2:
-	bl rand 						@ Call rand
-	mov r1,r0,asr #1 				@ In case random return is negative
-	mov r2,#11 						@ Move 11 to r2
-									@ We want rand()%11+1 so cal division function with rand()%11
-	bl division						@ Call division function to get remainder
-	add r1,#1 						@ Remainder in r1 so add 1 giving between 1 and 11
-	mov r8, r1
-	ldr r0, address_of_message6		@ Set message1 as the first parameter of printf
-	bl printf 						@ Call printf	
-	bl Dealers_Total
-	bl Dealers_Total
+ntotal:
+	add r7, r7, r6
+	mov r1, r7
+	ldr r0, address_of_message6
+	bl printf
+	bl endgame
+	
+checkwin:
+	ldr r0, address_of_message
+	bl printf
+	bal endgame
+	
+	
 
-Dealers_Total:
-		add r7, r7, r8
-		mov r1, r8
-		ldr r0, address_of_message3
-		bl printf
-		bl card3
-
-
+endgame:
 	pop {lr} 						
 	bx lr 							
  
- 
- 
- 
+ address_of_message: .word message
  address_of_message1: .word message1
  address_of_message2: .word message2
  address_of_message3: .word message3
  address_of_message4: .word message4
  address_of_message5: .word message5
  address_of_message6: .word message6
- address_of_message7: .word message7
-
-
  address_of_format: .word format
 									
  .global printf
+ .global scanf
  .global time
  .global srand
  .global rand
