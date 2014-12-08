@@ -267,9 +267,9 @@ Dealers_Total:
 		mov r1, r8
 		ldr r0, address_of_message9	@Output the users total
 		bl printf					
-		cmp r8, #14
+		cmp r8, #17
 		ble Dealers_card3
-		.global Dealers_card3
+		bl Dealers_ftotal
 
 Dealers_card3:
 	bl rand
