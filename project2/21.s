@@ -1,8 +1,5 @@
 .data
  
-message0: .asciz "You are given $100 to start\nHow much would you like to bid? \n"
-message01: .asciz "You bet $%d\n\n"
-message02: .asciz "Your total money is %d\n"
 message: .asciz "THE GAME IS BLACKJACK\n\n"
 message1: .asciz "Your first card is a %d\n"
 message2: .asciz "Your second card is a %d\n"
@@ -10,7 +7,7 @@ message3: .asciz "Your total is %d\n\n"
 message4: .asciz "Would you like to hit or stay, enter 1 to hit or anything else to exit\n"
 message5: .asciz "Your third card is %d\n"
 message6: .asciz "YOUR TOTAL IS  %d\n\n"
-message7: .asciz "The dealers first cardna is a %d\n"
+message7: .asciz "The dealers first card is a %d\n"
 message8: .asciz "The dealers second card is a %d\n\n"
 message9: .asciz "The dealers total is %d\n\n"
 message10: .asciz "The dealer hit\nThe dealers third card is a %d\n"
@@ -71,32 +68,8 @@ division:
 
 end:
 	pop {lr} 						@ Pop lr from the stack
-	bx lr
-
-bet:
-		str lr, [sp,#4]
-		sub sp, sp, #4
-		ldr r0, address_of_message0
-		bl printf
-		ldr r0, address_of_format		@Store the input from the user
-		mov r1, sp
-		bl scanf
+	bx lr 							
 		
-		add r1, sp, #4
-		ldr r1, [sp]
-		bl money
-money:
-			mov r11, #100
-			ldr r0, address_of_message01
-			bl printf
-			bl mtotal
-mtotal:
-			sub r1, r11, r1
-			mov r11, r1
-			ldr r0, address_of_message02
-			bl printf
-			bl card1
-			
  
  
 
@@ -111,7 +84,7 @@ main:
 	
 	ldr r0, address_of_message
 	bl printf
-	bl bet
+	bl card1
 	
 
 	.global card1
@@ -269,10 +242,6 @@ endgame:
 	pop {lr} 						
 	bx lr 							
  
- 
- address_of_message0: .word message0
- address_of_message01: .word message01
- address_of_message02: .word message02
  address_of_message: .word message
  address_of_message1: .word message1
  address_of_message2: .word message2

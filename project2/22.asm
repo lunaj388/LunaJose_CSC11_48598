@@ -2,7 +2,7 @@
  
 message0: .asciz "You are given $100 to start\nHow much would you like to bid? \n"
 message01: .asciz "You bet $%d\n\n"
-message02: .asciz "Your total money is %d\n"
+message02: .asciz "You currently have $%d\n"
 message: .asciz "THE GAME IS BLACKJACK\n\n"
 message1: .asciz "Your first card is a %d\n"
 message2: .asciz "Your second card is a %d\n"
@@ -10,13 +10,14 @@ message3: .asciz "Your total is %d\n\n"
 message4: .asciz "Would you like to hit or stay, enter 1 to hit or anything else to exit\n"
 message5: .asciz "Your third card is %d\n"
 message6: .asciz "YOUR TOTAL IS  %d\n\n"
-message7: .asciz "The dealers first cardna is a %d\n"
+message7: .asciz "The dealers first card is a %d\n"
 message8: .asciz "The dealers second card is a %d\n\n"
 message9: .asciz "The dealers total is %d\n\n"
 message10: .asciz "The dealer hit\nThe dealers third card is a %d\n"
 message11: .asciz "THE DEALERS TOTAL IS %d\n\n"
 message12: .asciz "You win\n"
 message13: .asciz "You lose\n"
+message14: .asciz "Would you like to play again?\nEnter 1 to continue, enter anything else to exit\n"
 format: .asciz "%d"
 scan_pattern: .word 0
 number_read: .word 0
@@ -84,18 +85,19 @@ bet:
 		
 		add r1, sp, #4
 		ldr r1, [sp]
-		bl money
-money:
-			mov r11, #100
-			ldr r0, address_of_message01
-			bl printf
-			bl mtotal
-mtotal:
-			sub r1, r11, r1
-			mov r11, r1
-			ldr r0, address_of_message02
-			bl printf
-			bl card1
+		
+		mov r11, #100
+		ldr r0, address_of_message01
+		bl printf
+	
+		ldr r0, address_of_message02		@Prompt the user to hit or stay
+		bl printf
+		mov r1, sp
+	
+		sub r1, sp, #4
+		ldr r1, [sp]
+		cmp r1, #100						@If the user inputs 1 brach to card3
+		bl Dealers_card1
 			
  
  
@@ -111,7 +113,8 @@ main:
 	
 	ldr r0, address_of_message
 	bl printf
-	bl bet
+	@bl bet
+	bl card1
 	
 
 	.global card1
@@ -246,8 +249,10 @@ Dealers_ftotal:
 check:
 	cmp r7, #21
 	bgt Lose
+	beq Win
 	cmp r8, #21
 	bgt Win
+	beq Lose
 	cmp r7, r8						@Compare the results
 	bgt Win							@Declare who wins
 	blt Lose						@Declare who losses
@@ -256,12 +261,38 @@ check:
 Win:
 	ldr r0, address_of_message12	@Output the results
 	bl printf
-	bal endgame						@End the game
+	
+	str lr, [sp,#4]
+	sub sp, sp, #4
+	ldr r0, address_of_message14		@Prompt the user to hit or stay
+	bl printf
+	ldr r0, address_of_format		@Store the input from the user
+	mov r1, sp
+	bl scanf
+	
+	add r1, sp, #4
+	ldr r1, [sp]
+	cmp r1, #1
+	beq card1
+	bal endgame
 
 Lose:
 	ldr r0, address_of_message13	@Output the results
 	bl printf
-	bal endgame						@End the game
+	
+	str lr, [sp,#4]
+	sub sp, sp, #4
+	ldr r0, address_of_message14		@Prompt the user to hit or stay
+	bl printf
+	ldr r0, address_of_format		@Store the input from the user
+	mov r1, sp
+	bl scanf
+	
+	add r1, sp, #4
+	ldr r1, [sp]
+	cmp r1, #1
+	beq card1
+	bal endgame
 	
 	
 
@@ -287,4 +318,5 @@ endgame:
  address_of_message11: .word message11
  address_of_message12: .word message12
  address_of_message13: .word message13
+ address_of_message14: .word message14
  address_of_format: .word format
