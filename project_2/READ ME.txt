@@ -1,0 +1,2 @@
+There are many logic errors throughout, suit selcetion does not work
+and the betting system has many errors
