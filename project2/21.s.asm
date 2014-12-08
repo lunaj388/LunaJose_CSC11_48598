@@ -1,19 +1,23 @@
 .data
  
-message0: .asciz "You are given $100 to start\nHow much would you like to bid? \n"
+message0: .asciz "How much would you like to bid? \n"
 message01: .asciz "You bet $%d\n\n"
 message02: .asciz "You currently have $%d\n"
-message: .asciz "THE GAME IS BLACKJACK\n\n"
-message1: .asciz "Your first card is a %d\n"
-message2: .asciz "Your second card is a %d\n"
+message03: .asciz " of hearts \n"
+message04: .asciz " of clubs \n"
+message05: .asciz " of diamonds \n"
+message06: .asciz " of spades \n"
+message: .asciz "THE GAME IS BLACKJACK\n\nYou are given $100 to start\n"
+message1: .asciz "Your first card is a %d"
+message2: .asciz "Your second card is a %d"
 message3: .asciz "Your total is %d\n\n"
 message4: .asciz "Would you like to hit or stay, enter 1 to hit or anything else to exit\n"
-message5: .asciz "Your third card is %d\n"
+message5: .asciz "Your third card is %d"
 message6: .asciz "YOUR TOTAL IS  %d\n\n"
-message7: .asciz "The dealers first card is a %d\n"
-message8: .asciz "The dealers second card is a %d\n\n"
-message9: .asciz "The dealers total is %d\n\n"
-message10: .asciz "The dealer hit\nThe dealers third card is a %d\n"
+message7: .asciz "The dealers first card is a %d"
+message8: .asciz "The dealers second card is a %d"
+message9: .asciz "The dealers total is %d\n"
+message10: .asciz "The dealer hit\nThe dealers third card is a %d"
 message11: .asciz "THE DEALERS TOTAL IS %d\n\n"
 message12: .asciz "You win\n"
 message13: .asciz "You lose\n"
@@ -75,30 +79,68 @@ end:
 	bx lr
 
 bet:
-		str lr, [sp,#4]
-		sub sp, sp, #4
-		ldr r0, address_of_message0
-		bl printf
-		ldr r0, address_of_format		@Store the input from the user
-		mov r1, sp
-		bl scanf
-		
-		add r1, sp, #4
-		ldr r1, [sp]
-		
-		mov r11, #100
-		ldr r0, address_of_message01
-		bl printf
+
+	str lr, [sp,#4]
+	sub sp, sp, #4
+	ldr r0, address_of_message0	@Prompt the user to hit or stay
+	bl printf
+	ldr r0, address_of_format		@Store the input from the user
+	mov r1, sp
+	bl scanf
+	add r1, sp, #4
+	ldr r1, [sp]
+	mov r12, #100
+	sub r12, r12, r1
+	mov r1, r12
+	ldr r0, address_of_message02
+	bl printf
+	bl card1
+
+suit_select:
+	bl rand
+	mov r1,r0,asr #1 				@ In case random return is negative
+	mov r2,#4 						@ Move 11 to r2
+									@ We want rand()%4+1 so cal division function with rand()%4
+	bl division						@ Call division function to get remainder
+	add r1,#1
+	mov r12, r1
 	
-		ldr r0, address_of_message02		@Prompt the user to hit or stay
-		bl printf
-		mov r1, sp
+	cmp r12, #1
+	beq hearts
+	cmp r12, #2
+	beq clubs
+	cmp r12, #3
+	beq diamonds
+	cmp r12, #4
+	beq spades
 	
-		sub r1, sp, #4
-		ldr r1, [sp]
-		cmp r1, #100						@If the user inputs 1 brach to card3
-		bl Dealers_card1
-			
+hearts:
+	push {lr}
+	ldr r0, address_of_message03
+	bl printf
+	pop {lr}
+	bx lr
+
+clubs:
+push {lr}
+	ldr r0, address_of_message04
+	bl printf
+	pop {lr}
+	bx lr
+
+diamonds:
+	push {lr}
+	ldr r0, address_of_message05
+	bl printf
+	pop {lr}
+	bx lr
+
+spades:
+	push {lr}
+	ldr r0, address_of_message06
+	bl printf
+	pop {lr}
+	bx lr		
  
  
 
@@ -113,7 +155,7 @@ main:
 	
 	ldr r0, address_of_message
 	bl printf
-	@bl bet
+	bl bet
 	bl card1
 	
 
@@ -128,6 +170,7 @@ card1:	 							@ Create a random number
 	mov r5, r1
 	ldr r0, address_of_message1		@ Set message1 as the first parameter of printf
 	bl printf 						@ Call printf	
+	@bl suit_select
 	bl card2
 
 	.global card2
@@ -141,7 +184,8 @@ card2:	 							@ Create a random number
 	mov r6, r1
 	ldr r0, address_of_message2		@ Set message2 as the first parameter of printf
 	bl printf	@ Call printf
-	.global total
+	@bl suit_select
+	bl total
 total:
 	add r6, r6, r5				@Add R6 and R5
 	mov r1, r6
@@ -150,7 +194,6 @@ total:
 	cmp r6, #21					@Check to see if the user total is 21
 	beq Win						@If so the user wins
 	bl ncard					@If not prompt the user to choose whether or not hit or stay
-	.global ncard
 
 ncard:
 	str lr, [sp,#4]
@@ -166,7 +209,6 @@ ncard:
 	cmp r1, #1						@If the user inputs 1 brach to card3
 	beq card3
 	bl Dealers_card1
-	.global card3
 	
 card3:
 	bl rand 						@ Call rand
@@ -178,6 +220,7 @@ card3:
 	mov r7, r1
 	ldr r0, address_of_message5		@ Set message5 as the first parameter of printf
 	bl printf 						@ Call printf
+	@bl suit_select
 	bl ntotal
 
 ntotal:
@@ -201,9 +244,9 @@ Dealers_card1:
 	mov r8, r1
 	ldr r0, address_of_message7	    @ Set message7 as the first parameter of printf
 	bl printf 						@ Call printf	
+	@bl suit_select
 	bl Dealers_card2
-	.global Dealers_card2
-
+	
 Dealers_card2:
 	bl rand 						@ Call rand
 	mov r1,r0,asr #1 				@ In case random return is negative
@@ -214,8 +257,9 @@ Dealers_card2:
 	mov r9, r1
 	ldr r0, address_of_message8		@ Set message8 as the first parameter of printf
 	bl printf 			
+	@bl suit_select
 	bl Dealers_Total
-	.global Dealers_Total
+	
 
 Dealers_Total:
 		add r8, r8, r9				@Add r8 and r9
@@ -236,6 +280,7 @@ Dealers_card3:
 	mov r10, r1
 	ldr r0, address_of_message10
 	bl printf
+	@bl suit_select
 	bl Dealers_ftotal
 	
 Dealers_ftotal:
@@ -245,7 +290,6 @@ Dealers_ftotal:
 	bl printf
 	bl check
 	
-
 check:
 	cmp r7, #21
 	bgt Lose
@@ -257,7 +301,6 @@ check:
 	bgt Win							@Declare who wins
 	blt Lose						@Declare who losses
 	
-
 Win:
 	ldr r0, address_of_message12	@Output the results
 	bl printf
@@ -269,12 +312,15 @@ Win:
 	ldr r0, address_of_format		@Store the input from the user
 	mov r1, sp
 	bl scanf
+	mov r12, #25
+	ldr r0, address_of_message02
+	bl printf
 	
 	add r1, sp, #4
 	ldr r1, [sp]
-	cmp r1, #1
-	beq card1
-	bal endgame
+	cmp r1, #1					@compare the user input to the number 1 if equals
+	beq bet						@branch to bet if not 
+	bal endgame					@branch to endgame to end the game
 
 Lose:
 	ldr r0, address_of_message13	@Output the results
@@ -290,20 +336,21 @@ Lose:
 	
 	add r1, sp, #4
 	ldr r1, [sp]
-	cmp r1, #1
-	beq card1
-	bal endgame
+	cmp r1, #1					@compare the user input to the number 1 if equals
+	beq bet						@branch to bet if not 
+	bal endgame					@branch to endgame to end the game
 	
-	
-
 endgame:
 	pop {lr} 						
 	bx lr 							
  
- 
  address_of_message0: .word message0
  address_of_message01: .word message01
  address_of_message02: .word message02
+ address_of_message03: .word message03
+ address_of_message04: .word message04
+ address_of_message05: .word message05
+ address_of_message06: .word message06
  address_of_message: .word message
  address_of_message1: .word message1
  address_of_message2: .word message2
