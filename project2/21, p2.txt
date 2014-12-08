@@ -1,3 +1,4 @@
+
 .data
  
 message0: .asciz "How much would you like to bid? \n"
@@ -8,16 +9,16 @@ message04: .asciz " of clubs \n"
 message05: .asciz " of diamonds \n"
 message06: .asciz " of spades \n"
 message: .asciz "THE GAME IS BLACKJACK\n\nYou are given $100 to start\n"
-message1: .asciz "Your first card is a %d"
-message2: .asciz "Your second card is a %d"
+message1: .asciz "Your first card is a %d\n"
+message2: .asciz "Your second card is a %d\n"
 message3: .asciz "Your total is %d\n\n"
 message4: .asciz "Would you like to hit or stay, enter 1 to hit or anything else to exit\n"
-message5: .asciz "Your third card is %d"
+message5: .asciz "Your third card is %d\n"
 message6: .asciz "YOUR TOTAL IS  %d\n\n"
-message7: .asciz "The dealers first card is a %d"
-message8: .asciz "The dealers second card is a %d"
+message7: .asciz "The dealers first card is a %d\n"
+message8: .asciz "The dealers second card is a %d\n"
 message9: .asciz "The dealers total is %d\n"
-message10: .asciz "The dealer hit\nThe dealers third card is a %d"
+message10: .asciz "The dealer hit\nThe dealers third card is a %d\n"
 message11: .asciz "THE DEALERS TOTAL IS %d\n\n"
 message12: .asciz "You win\n"
 message13: .asciz "You lose\n"
@@ -103,15 +104,15 @@ suit_select:
 									@ We want rand()%4+1 so cal division function with rand()%4
 	bl division						@ Call division function to get remainder
 	add r1,#1
-	mov r12, r1
+	mov r13, r1
 	
-	cmp r12, #1
+	cmp r13, #1
 	beq hearts
-	cmp r12, #2
+	cmp r13, #2
 	beq clubs
-	cmp r12, #3
+	cmp r13, #3
 	beq diamonds
-	cmp r12, #4
+	cmp r13, #4
 	beq spades
 	
 hearts:
@@ -122,7 +123,7 @@ hearts:
 	bx lr
 
 clubs:
-push {lr}
+	push {lr}
 	ldr r0, address_of_message04
 	bl printf
 	pop {lr}
