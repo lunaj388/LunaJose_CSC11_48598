@@ -269,7 +269,7 @@ Dealers_Total:
 		bl printf					
 		cmp r8, #17
 		ble Dealers_card3
-		bl Dealers_ftotal
+		bl check
 
 Dealers_card3:
 	bl rand
